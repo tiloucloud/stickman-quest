@@ -1,0 +1,36 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.stickmanquest.game'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "com.stickmanquest.game"
+        minSdk 24
+        targetSdk 35
+        versionCode 1
+        versionName "1.0"
+    }
+
+    signingConfigs {
+        // Fixed test key so new builds install over old ones (keeps your progress).
+        debug {
+            storeFile file('test-key.jks')
+            storePassword 'stickman'
+            keyAlias 'stickman'
+            keyPassword 'stickman'
+        }
+    }
+
+    buildTypes {
+        debug { signingConfig signingConfigs.debug }
+        release { minifyEnabled false }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
