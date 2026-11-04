@@ -2,31 +2,51 @@ plugins {
     id 'com.android.application'
 }
 
+// Release (Play Store) signing comes from GitHub Secrets via environment
+// variables — the upload key is never stored in this public repository.
+def relStore = System.getenv("RELEASE_STORE_FILE")
+def relStorePass = System.getenv("RELEASE_STORE_PASSWORD")
+def relAlias = System.getenv("RELEASE_KEY_ALIAS")
+def relKeyPass = System.getenv("RELEASE_KEY_PASSWORD")
+def hasRelease = relStore != null && !relStore.isEmpty() && file(relStore).exists()
+
 android {
     namespace 'com.stickmanquest.game'
-    compileSdk 35
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.stickmanquest.game"
         minSdk 24
-        targetSdk 35
+        targetSdk 36
+        // Increase versionCode by 1 for every new upload to Google Play.
         versionCode 1
         versionName "1.0"
     }
 
     signingConfigs {
-        // Fixed test key so new builds install over old ones (keeps your progress).
+        // Fixed test key so new debug builds install over old ones (keeps your progress).
         debug {
             storeFile file('test-key.jks')
             storePassword 'stickman'
             keyAlias 'stickman'
             keyPassword 'stickman'
         }
+        if (hasRelease) {
+            release {
+                storeFile file(relStore)
+                storePassword relStorePass
+                keyAlias relAlias
+                keyPassword relKeyPass
+            }
+        }
     }
 
     buildTypes {
         debug { signingConfig signingConfigs.debug }
-        release { minifyEnabled false }
+        release {
+            minifyEnabled false
+            if (hasRelease) signingConfig signingConfigs.release
+        }
     }
 
     compileOptions {
