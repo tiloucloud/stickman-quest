@@ -6,3 +6,7 @@ android/local.properties
 *.apk
 android/app/upload-key.jks
 *.aab
+
+# Local chat deliverables (not part of the app)
+*.mp4
+stickman-quest-project.zip
