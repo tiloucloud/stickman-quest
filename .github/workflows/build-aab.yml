@@ -6,6 +6,9 @@ on:
     branches: [main]
   workflow_dispatch: {}
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-24.04
@@ -68,6 +71,17 @@ jobs:
         with:
           name: stickman-quest-test-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Save build outputs to the 'builds' branch
+        run: |
+          mkdir -p /tmp/out
+          cp android/app/build/outputs/bundle/release/app-release.aab /tmp/out/StickmanQuest-release.aab
+          cp android/app/build/outputs/apk/debug/app-debug.apk /tmp/out/StickmanQuest.apk
+          cd /tmp/out
+          git init -q -b builds
+          git add .
+          git -c user.name="github-actions" -c user.email="github-actions@users.noreply.github.com" commit -qm "Build ${{ github.run_number }} (${{ github.sha }})"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" builds
 
       - name: Remove keystore
         if: always()
